@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mes cours - StudyApp</title>
+
+  <!-- Police via Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" 
+    rel="stylesheet"
+  >
+  <style>
+    :root {
+      /* Palette pastel & variables globales */
+      --color-bg-main:       #f4f9f7;
+      --color-text-main:     #111111;
+      --color-gray:          #6b6b6b;
+      --color-dark-gray:     #333333;
+
+      --color-pastel-pink:   #fddce2;
+      --color-pastel-yellow: #fce7c1;
+      --color-pastel-purple: #e9e5ff;
+      --color-pastel-green:  #dff6e7;
+
+      --sidebar-gradient-start: #fddce2;
+      --sidebar-gradient-end:   #e9e5ff;
+
+      --color-white: #ffffff;
+      --transition: 0.25s ease;
+      --radius-cards: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--color-bg-main);
+      color: var(--color-text-main);
+      overflow: hidden;
+    }
+
+    /* === Layout global : Sidebar à gauche, contenu à droite === */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr; 
+      grid-template-rows: 100vh;
+      overflow: hidden;
+    }
+
+    /* === SIDEBAR PRINCIPALE (gauche) === */
+    .sidebar {
+      background: linear-gradient(
+        170deg, 
+        var(--sidebar-gradient-start) 0%, 
+        var(--sidebar-gradient-end) 100%
+      );
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .sidebar-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar-logo svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .main-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .menu-item {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .menu-item svg {
+      width: 18px;
+      height: 18px;
+    }
+    .menu-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .menu-item.active {
+      background: var(--color-white);
+      color: var(--color-dark-gray);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sidebar-footer a {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar-footer a svg {
+      width: 16px;
+      height: 16px;
+    }
+    .sidebar-footer a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* === CONTENU PRINCIPAL === */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-white);
+      overflow-y: auto;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .searchbar {
+      position: relative;
+    }
+    .searchbar input {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
+    .searchbar svg {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      fill: var(--color-gray);
+      width: 16px;
+      height: 16px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .btn-create {
+      background: var(--color-pastel-green);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: filter var(--transition);
+    }
+    .btn-create svg {
+      width: 16px;
+      height: 16px;
+    }
+    .btn-create:hover {
+      filter: brightness(0.95);
+    }
+
+    /* === PAGE “MES COURS” === */
+
+    .courses-container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      height: calc(100vh - 80px); /* la topbar fait ~80px */
+      overflow: hidden;
+    }
+    @media (max-width: 992px) {
+      .courses-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* MENU VERTICAL DES MATIÈRES/COURS */
+    .vertical-menu {
+      background: var(--color-pastel-purple);
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .vertical-menu h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.5rem;
+    }
+    .subject-folder {
+      margin-bottom: 1rem;
+    }
+    .subject-folder h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--color-dark-gray);
+    }
+    .course-item {
+      font-size: 0.85rem;
+      color: var(--color-gray);
+      margin-left: 1rem;
+      margin-bottom: 0.3rem;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+    .course-item:hover {
+      color: var(--color-dark-gray);
+    }
+
+    /* ZONE PRINCIPALE : cours/notes */
+    .main-area {
+      background: #fafafa;
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Onglets: My Files / Shared */
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .tab {
+      font-weight: 600;
+      color: var(--color-gray);
+      padding: 0.4rem 1rem;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .tab.active {
+      background: var(--color-pastel-green);
+      color: var(--color-dark-gray);
+      border-color: var(--color-pastel-green);
+    }
+
+    /* Liste de notes/cours dans la zone principale */
+    .notes-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .chapter-block {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 0.8rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .chapter-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .note-item {
+      font-size: 0.85rem;
+      color: var(--color-dark-gray);
+      margin-left: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .note-item .note-date {
+      font-size: 0.75rem;
+      color: var(--color-gray);
+    }
+
+    /* Zone “Ask a Question” */
+    .ask-container {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 0.5rem 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: auto; /* push to bottom */
+    }
+    .ask-container input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 0.9rem;
+      color: var(--color-dark-gray);
+      background: transparent;
+    }
+    .ask-container button {
+      background: var(--color-pastel-pink);
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter var(--transition);
+    }
+    .ask-container button:hover {
+      filter: brightness(0.95);
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- SIDEBAR PRINCIPALE -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24">
+        <path d="M18,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18C19.11,22 20,21.11 20,20V4A2,2 0 0,0 18,2Z" />
+      </svg>
+      ScholarXpert
+    </div>
+
+    <nav class="main-menu">
+      <a href="./index.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M10,20V14H3V10H10V4H14V10H21V14H14V20H10Z" />
+        </svg>
+        Dashboard
+      </a>
+      <a href="./tasks.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 3H21V5H3V3M3 8H21V10H3V8M3 13H21V15H3V13M3 18H14V20H3V18Z" />
+        </svg>
+        Tâches
+      </a>
+      <a href="#" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16H6V18H12A6,6 0 0,0 18,12A6,6 0 0,0 12,6H5V8H12" />
+        </svg>
+        Routines
+      </a>
+      <a href="./flashcards.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M4,6H20V8H4V6M9,10H20V12H9V10M9,14H20V16H9V14M4,10H7V16H4V10Z" />
+        </svg>
+        Flashcards IA
+      </a>
+      <!-- Mes cours = actif -->
+      <a href="./cours.html" class="menu-item active">
+        <svg viewBox="0 0 24 24">
+          <path d="M20,2H4C2.9,2 2,2.9 2,4V18C2,19.11 2.9,20 4,20H8V22H10V20H14V22H16V20H20C21.11,20 22,19.11 22,18V4C22,2.9 21.11,2 20,2M12,18H4V4H20V18H12Z" />
+        </svg>
+        Mes cours
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="./plans.html" class="plans-link">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,4A6,6 0 0,1 18,10C18,13.31 15.31,16 12,16A6,6 0 0,1 6,10A6,6 0 0,1 12,4Z" />
+        </svg>
+        Voir les plans
+      </a>
+      <a href="./login.html" class="logout">
+        <svg viewBox="0 0 24 24">
+          <path d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20,11.5L15.5,16L14.08,15.59M13,3A2,2 0 0,1 15,5V7H13V5H5V19H13V17H15V19A2,2 0 0,1 13,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H13Z" />
+        </svg>
+        Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="searchbar">
+          <input type="text" placeholder="Rechercher...">
+          <svg viewBox="0 0 24 24">
+            <path d="M9.5,3C13.09,3 16,5.91 16,9.5C16,11.04 15.47,12.45 14.58,13.55L14.91,13.88H15C16.1,13.88 17,14.78 17,15.88C17,16.98 16.1,17.88 15,17.88H14.91L14.58,18.21C13.48,19.11 12.07,19.64 10.53,19.64C6.94,19.64 4.03,16.73 4.03,13.14C4.03,9.55 6.94,6.64 10.53,6.64M9.5,5C6.47,5 4,7.47 4,10.5C4,13.53 6.47,16 9.5,16C12.53,16 15,13.53 15,10.5C15,7.47 12.53,5 9.5,5Z" />
+          </svg>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Bouton de création (Optionnel) -->
+        <button class="btn-create">
+          <svg viewBox="0 0 24 24">
+            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+          </svg>
+          Créer
+        </button>
+      </div>
+    </div>
+
+    <!-- ZONE DES COURS -->
+    <div class="courses-container">
+      <!-- MENU VERTICAL MATIÈRES/COURS -->
+      <aside class="vertical-menu">
+        <h2>Matières & Cours</h2>
+
+        <div class="subject-folder">
+          <h3>Physique</h3>
+          <div class="course-item">Cours 1: Optique</div>
+          <div class="course-item">Cours 2: Mécanique</div>
+        </div>
+
+        <div class="subject-folder">
+          <h3>Maths</h3>
+          <div class="course-item">Cours 1: Intégrales</div>
+          <div class="course-item">Cours 2: Dérivées</div>
+          <div class="course-item">Cours 3: Probabilités</div>
+        </div>
+
+        <div class="subject-folder">
+          <h3>Anglais</h3>
+          <div class="course-item">Vocabulaire Q1</div>
+          <div class="course-item">Grammaire B1</div>
+        </div>
+      </aside>
+
+      <!-- ZONE PRINCIPALE : CHAPITRES / NOTES -->
+      <section class="main-area">
+        <!-- Onglets My Files / Shared -->
+        <div class="tabs">
+          <div class="tab active">My Files</div>
+          <div class="tab">Shared</div>
+        </div>
+
+        <!-- Liste de notes/cours -->
+        <div class="notes-list">
+          <div class="chapter-block">
+            <div class="chapter-title">
+              <!-- Petite icône check ou dossier -->
+              <svg style="width:16px;height:16px; fill: var(--color-dark-gray);" viewBox="0 0 24 24">
+                <path d="M10,4H2V20H22V8H12L10,4Z" />
+              </svg>
+              Chapitre 1
+            </div>
+            <div class="note-item">
+              <span>1ère Note</span>
+              <span class="note-date">créé le Jul 21, 2024</span>
+            </div>
+            <div class="note-item">
+              <span>2e Note</span>
+              <span class="note-date">créé le Nov 12, 2024</span>
+            </div>
+          </div>
+
+          <div class="chapter-block">
+            <div class="chapter-title">
+              <svg style="width:16px;height:16px; fill: var(--color-dark-gray);" viewBox="0 0 24 24">
+                <path d="M10,4H2V20H22V8H12L10,4Z" />
+              </svg>
+              Chapitre 2
+            </div>
+            <div class="note-item">
+              <span>Note séparée</span>
+              <span class="note-date">créé le Mar 2, 2025</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone pour poser une question -->
+        <div class="ask-container">
+          <input type="text" placeholder="Posez une question..." />
+          <button>Demander</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

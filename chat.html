@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>ProfIA - StudyApp</title>
+
+  <!-- Police via Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" 
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      /* Palette & variables globales */
+      --color-bg-main:        #f4f9f7;
+      --color-text-main:      #111111;
+      --color-gray:           #6b6b6b;
+      --color-dark-gray:      #333333;
+
+      --color-pastel-pink:    #fddce2;
+      --color-pastel-yellow:  #fce7c1;
+      --color-pastel-purple:  #e9e5ff;
+      --color-pastel-green:   #dff6e7;
+
+      --sidebar-gradient-start: #fddce2;
+      --sidebar-gradient-end:   #e9e5ff;
+
+      --color-white: #ffffff;
+      --transition: 0.25s ease;
+      --radius-cards: 12px;
+
+      /* Couleurs bulles chat */
+      --bubble-user:   linear-gradient(120deg, #e9e5ff 0%, #dcd6ff 100%);
+      --bubble-ia:     linear-gradient(120deg, #dff6e7 0%, #c9eddc 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--color-bg-main);
+      color: var(--color-text-main);
+      overflow: hidden;
+    }
+
+    /* === Layout global (SIDEBAR + CONTENU) === */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 100vh;
+      overflow: hidden;
+    }
+
+    /* === SIDEBAR === */
+    .sidebar {
+      background: linear-gradient(
+        170deg, 
+        var(--sidebar-gradient-start) 0%, 
+        var(--sidebar-gradient-end) 100%
+      );
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(0,0,0,0.05);
+    }
+    .sidebar-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar-logo svg {
+      width: 28px;
+      height: 28px;
+    }
+    .main-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .menu-item {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .menu-item svg {
+      width: 18px;
+      height: 18px;
+    }
+    .menu-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .menu-item.active {
+      background: var(--color-white);
+      color: var(--color-dark-gray);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sidebar-footer a {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar-footer a svg {
+      width: 16px;
+      height: 16px;
+    }
+    .sidebar-footer a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* === CONTENU PRINCIPAL === */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-white);
+      overflow-y: auto;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .searchbar {
+      position: relative;
+    }
+    .searchbar input {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
+    .searchbar svg {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      fill: var(--color-gray);
+      width: 16px;
+      height: 16px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .btn-create {
+      background: var(--color-pastel-green);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: filter var(--transition);
+    }
+    .btn-create svg {
+      width: 16px;
+      height: 16px;
+    }
+    .btn-create:hover {
+      filter: brightness(0.95);
+    }
+
+    /* === PROF IA PAGE === */
+    .profia-container {
+      display: grid;
+      grid-template-columns: 1fr 3fr; /* Historique + Chat */
+      gap: 1.5rem;
+      padding: 1.5rem;
+      height: calc(100vh - 80px);
+      overflow: hidden;
+    }
+    @media (max-width: 992px) {
+      .profia-container {
+        grid-template-columns: 1fr; 
+      }
+    }
+
+    /* HISTORIQUE */
+    .history-panel {
+      background: var(--color-pastel-purple);
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .history-panel h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      margin-bottom: 1rem;
+    }
+    .history-section {
+      margin-bottom: 1rem;
+    }
+    .history-section h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.4rem;
+    }
+    .history-item {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 0.6rem;
+      margin-bottom: 0.6rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: background var(--transition);
+      font-size: 0.85rem;
+      color: var(--color-dark-gray);
+    }
+    .history-item:hover {
+      background: #f2f2f2;
+    }
+
+    /* ZONE DE CHAT */
+    .chat-panel {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: #fafafa;
+    }
+
+    .bubble-user {
+      align-self: flex-end;
+      max-width: 70%;
+      background: var(--bubble-user);
+      padding: 0.8rem;
+      border-radius: 16px 16px 0 16px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      color: var(--color-dark-gray);
+      animation: fadeInUp 0.2s ease forwards;
+    }
+    .bubble-ia {
+      align-self: flex-start;
+      max-width: 70%;
+      background: var(--bubble-ia);
+      padding: 0.8rem;
+      border-radius: 16px 16px 16px 0; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+      color: var(--color-dark-gray);
+      animation: fadeInUp 0.2s ease forwards;
+    }
+    .bubble-time {
+      font-size: 0.75rem;
+      color: var(--color-gray);
+      margin-top: 0.3rem;
+      text-align: right;
+    }
+
+    @keyframes fadeInUp {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* BARRE D’ENVOI améliorée */
+    .chat-input-area {
+      background: #fff;
+      border-top: 1px solid #eee;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
+    }
+    .input-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid #ddd;
+    }
+    .input-container input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
+      color: var(--color-dark-gray);
+      outline: none;
+    }
+
+    .chat-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .chat-actions svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--color-gray);
+      cursor: pointer;
+      transition: fill var(--transition);
+    }
+    .chat-actions svg:hover {
+      fill: var(--color-dark-gray);
+    }
+
+    .btn-send {
+      background: var(--color-pastel-green);
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-send svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--color-dark-gray);
+    }
+    .btn-send:hover {
+      filter: brightness(0.95);
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24">
+        <path d="M18,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18C19.11,22 20,21.11 20,20V4A2,2 0 0,0 18,2Z" />
+      </svg>
+      ScholarXpert
+    </div>
+
+    <nav class="main-menu">
+      <a href="./index.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M10,20V14H3V10H10V4H14V10H21V14H14V20H10Z" />
+        </svg>
+        Dashboard
+      </a>
+      <a href="./tasks.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 3H21V5H3V3M3 8H21V10H3V8M3 13H21V15H3V13M3 18H14V20H3V18Z" />
+        </svg>
+        Tâches
+      </a>
+      <a href="./routines.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16H6V18H12A6,6 0 0,0 18,12A6,6 0 0,0 12,6H5V8H12" />
+        </svg>
+        Routines
+      </a>
+      <a href="./flashcards.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M4,6H20V8H4V6M9,10H20V12H9V10M9,14H20V16H9V14M4,10H7V16H4V10Z" />
+        </svg>
+        Flashcards IA
+      </a>
+      <!-- ProfIA = actif -->
+      <a href="./chat.html" class="menu-item active">
+        <svg viewBox="0 0 24 24">
+          <path d="M9,22C8.45,22 8,21.55 8,21V20H6A2,2 0 0,1 4,18V6A2,2 0 0,1 6,4H18A2,2 0 0,1 20,6V18A2,2 0 0,1 18,20H12L10,22H9" />
+        </svg>
+        ProfIA
+      </a>
+      <a href="./cours.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M20,2H4C2.9,2 2,2.9 2,4V18C2,19.11 2.9,20 4,20H8V22H10V20H14V22H16V20H20C21.11,20 22,19.11 22,18V4C22,2.9 21.11,2 20,2M12,18H4V4H20V18H12Z" />
+        </svg>
+        Mes cours
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="./plans.html" class="plans-link">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,4A6,6 0 0,1 18,10C18,13.31 15.31,16 12,16A6,6 0 0,1 6,10A6,6 0 0,1 12,4Z" />
+        </svg>
+        Voir les plans
+      </a>
+      <a href="./login.html" class="logout">
+        <svg viewBox="0 0 24 24">
+          <path d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20,11.5L15.5,16L14.08,15.59M13,3A2,2 0 0,1 15,5V7H13V5H5V19H13V17H15V19A2,2 0 0,1 13,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H13Z" />
+        </svg>
+        Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="searchbar">
+          <input type="text" placeholder="Rechercher...">
+          <svg viewBox="0 0 24 24">
+            <path d="M9.5,3C13.09,3 16,5.91 16,9.5C16,11.04 15.47,12.45 14.58,13.55L14.91,13.88H15C16.1,13.88 17,14.78 17,15.88C17,16.98 16.1,17.88 15,17.88H14.91L14.58,18.21C13.48,19.11 12.07,19.64 10.53,19.64C6.94,19.64 4.03,16.73 4.03,13.14C4.03,9.55 6.94,6.64 10.53,6.64M9.5,5C6.47,5 4,7.47 4,10.5C4,13.53 6.47,16 9.5,16C12.53,16 15,13.53 15,10.5C15,7.47 12.53,5 9.5,5Z" />
+          </svg>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-create">
+          <svg viewBox="0 0 24 24">
+            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+          </svg>
+          Créer
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE PROF IA -->
+    <div class="profia-container">
+      <!-- HISTORIQUE DES DISCUSSIONS (avec sections) -->
+      <aside class="history-panel">
+        <h2>Historique</h2>
+
+        <div class="history-section">
+          <h3>Aujourd'hui</h3>
+          <div class="history-item">Discussion “Physique Optique” (09:15)</div>
+        </div>
+
+        <div class="history-section">
+          <h3>Hier</h3>
+          <div class="history-item">Discussion “Anglais Vocab” (18:22)</div>
+        </div>
+
+        <div class="history-section">
+          <h3>7 derniers jours</h3>
+          <div class="history-item">Discussion “Maths Exos” (2 jours)</div>
+        </div>
+
+        <div class="history-section">
+          <h3>Plus d'un mois</h3>
+          <div class="history-item">Discussion “Histoire Chap 3” (34 jours)</div>
+          <div class="history-item">Discussion “Vide” (45 jours)</div>
+        </div>
+      </aside>
+
+      <!-- ZONE DE CHAT -->
+      <section class="chat-panel">
+        <div class="chat-messages">
+          <!-- Faux messages -->
+          <div class="bubble-ia">
+            Bonjour ! Comment puis-je vous aider aujourd’hui ?
+            <div class="bubble-time">10:30</div>
+          </div>
+          <div class="bubble-user">
+            Salut ProfIA, peux-tu m’expliquer la dérivation de x^2 ?
+            <div class="bubble-time">10:31</div>
+          </div>
+          <div class="bubble-ia">
+            Bien sûr ! La dérivée de x² est 2x. Souhaitez-vous un rappel de la règle générale ?
+            <div class="bubble-time">10:32</div>
+          </div>
+          <div class="bubble-user">
+            Oui s’il te plaît.
+            <div class="bubble-time">10:33</div>
+          </div>
+          <div class="bubble-ia">
+            Pour rappel, la dérivée de x^n est n·x^(n-1). Ainsi, pour x², n=2, donc la dérivée est 2·x^(1) = 2x.
+            <div class="bubble-time">10:35</div>
+          </div>
+        </div>
+
+        <!-- ZONE DE SAISIE (améliorée) -->
+        <div class="chat-input-area">
+          <div class="chat-actions">
+            <!-- Icône fichier -->
+            <svg viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M13,9V3.5L18.5,9H13Z" />
+            </svg>
+            <!-- Icône image -->
+            <svg viewBox="0 0 24 24">
+              <path d="M5,3A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3H5M8.5,14.5L11,17.5L14.5,13L19,19H5L8.5,14.5Z" />
+            </svg>
+            <!-- Icône micro -->
+            <svg viewBox="0 0 24 24">
+              <path d="M9,2A3,3 0 0,1 12,5V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V5A3,3 0 0,1 9,2M17,11V5A5,5 0 0,0 7,5V11A5,5 0 0,0 12,16.9V19H8V21H16V19H12V16.9A5,5 0 0,0 17,11Z" />
+            </svg>
+          </div>
+
+          <!-- Input -->
+          <div class="input-container">
+            <input type="text" placeholder="Tapez votre message..." />
+          </div>
+
+          <!-- Bouton envoyer (avec icône) -->
+          <button class="btn-send">
+            <svg viewBox="0 0 24 24">
+              <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
+            </svg>
+            Envoyer
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard Étudiant Amélioré</title>
+
+  <!-- Police via Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" 
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      /* Palette pastel */
+      --color-bg-main:       #f4f9f7;
+      --color-text-main:     #111111;
+      --color-gray:          #6b6b6b;
+      --color-dark-gray:     #333333;
+
+      --color-pastel-pink:   #fddce2;
+      --color-pastel-yellow: #fce7c1;
+      --color-pastel-purple: #e9e5ff;
+      --color-pastel-green:  #dff6e7;
+
+      /* Gradient sidebar (rose -> violet) */
+      --sidebar-gradient-start: #fddce2;
+      --sidebar-gradient-end:   #e9e5ff;
+
+      --color-white: #ffffff;
+      --transition: 0.25s ease;
+      --radius-cards: 12px;
+
+      /* Badges types devoirs => plus c’est difficile, plus c’est rouge/orange */
+      --badge-dm:      #a5dfa5; /* vert doux */
+      --badge-partiel: #ffce85; /* orange clair */
+      --badge-exam:    #ff9b9b; /* rouge clair */
+
+      /* Badges matières */
+      --badge-maths:     #e9e5ff; 
+      --badge-physique:  #dff6e7; 
+      --badge-anglais:   #fddce2; 
+      --badge-philo:     #fce7c1;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--color-bg-main);
+      color: var(--color-text-main);
+      overflow: hidden;
+    }
+
+    /* === Layout global : Sidebar à gauche, contenu à droite === */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr; 
+      grid-template-rows: 100vh;
+      overflow: hidden;
+    }
+
+    /* === SIDEBAR === */
+    .sidebar {
+      background: linear-gradient(
+        170deg, 
+        var(--sidebar-gradient-start) 0%, 
+        var(--sidebar-gradient-end) 100%
+      );
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .sidebar-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar-logo svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Menu principal */
+    .main-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .menu-item {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .menu-item svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .menu-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .menu-item.active {
+      background: var(--color-white);
+      color: var(--color-dark-gray);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Sous-menu arborescent (Mes cours) */
+    .submenu {
+      margin-left: 2rem;
+      margin-top: 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .submenu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+      color: var(--color-dark-gray);
+      cursor: pointer;
+    }
+    .submenu-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Footer de la sidebar */
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .plans,
+    .logout {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .plans svg,
+    .logout svg {
+      width: 18px;
+      height: 18px;
+    }
+    .plans:hover,
+    .logout:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* === CONTENU PRINCIPAL === */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-white);
+      overflow-y: auto; 
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .searchbar {
+      position: relative;
+    }
+    .searchbar input {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
+    .searchbar svg {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      fill: var(--color-gray);
+      width: 16px;
+      height: 16px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-create {
+      background: var(--color-pastel-green);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: filter var(--transition);
+    }
+    .btn-create svg {
+      width: 16px;
+      height: 16px;
+    }
+    .btn-create:hover {
+      filter: brightness(0.95);
+    }
+
+    /* Dashboard (2 colonnes : gauche + droite) */
+    .dashboard-content {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 1.5rem;
+    }
+
+    /* === COLONNE GAUCHE === */
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Cartes “section” */
+    .card {
+      background: var(--color-pastel-purple);
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .card svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Sous-cartes pour lister les éléments */
+    .subcard {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .subcard-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.3rem;
+    }
+    .subcard-meta {
+      font-size: 0.8rem;
+      color: var(--color-gray);
+    }
+
+    /* Badges matières */
+    .subject-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 6px;
+      margin-right: 5px;
+    }
+    .subject-maths     { background: var(--badge-maths); }
+    .subject-physique  { background: var(--badge-physique); }
+    .subject-anglais   { background: var(--badge-anglais); }
+    .subject-philo     { background: var(--badge-philo); }
+
+    /* Badges type de tâche (DM, Partiel, Exam) */
+    .task-type {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-left: 6px;
+    }
+    .task-type-dm      { background: var(--badge-dm); } 
+    .task-type-partiel { background: var(--badge-partiel); }
+    .task-type-exam    { background: var(--badge-exam); }
+
+    .routine-success {
+      font-size: 0.8rem;
+      color: var(--color-gray);
+      margin-top: 0.3rem;
+    }
+
+    /* === COLONNE DROITE === */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Mon profil */
+    .profile-card {
+      background: var(--color-pastel-yellow);
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    .profile-pic {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #ccc;
+      flex-shrink: 0;
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-info .name {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .profile-score {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.3rem;
+    }
+
+    /* On réintroduit les icônes pour l'abonnement, les crédits, les paramètres (petites tailles) */
+    .profile-sub,
+    .profile-credits,
+    .profile-params {
+      font-size: 0.85rem;
+      color: var(--color-gray);
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .profile-sub svg,
+    .profile-credits svg,
+    .profile-params svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Classement Global (avec une icône trophée redimensionnée) */
+    .ranking-card {
+      background: var(--color-pastel-pink);
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .ranking-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .ranking-card h2 svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 0.4rem 0.6rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .rank-number {
+      width: 20px;
+      font-weight: 700;
+      text-align: right;
+    }
+    .ranking-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ccc;
+      overflow: hidden;
+    }
+    .ranking-name {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--color-dark-gray);
+    }
+    .ranking-score {
+      font-size: 0.75rem;
+      color: var(--color-gray);
+    }
+
+    /* Événements à venir */
+    .events-card {
+      background: var(--color-pastel-green);
+      border-radius: var(--radius-cards);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .events-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .events-card h2 svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (max-width: 992px) {
+      .dashboard-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <!-- Icône livre par exemple -->
+      <svg viewBox="0 0 24 24">
+        <path d="M18,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18C19.11,22 20,21.11 20,20V4A2,2 0 0,0 18,2M11,19H6V17H11V19M18,19H13V17H18V19M18,15H6V5H18V15Z" />
+      </svg>
+      ScholarXpert
+    </div>
+
+    <nav class="main-menu">
+      <!-- Dashboard -->
+      <a href="#" class="menu-item active">
+        <svg viewBox="0 0 24 24">
+          <path d="M10,20V14H3V10H10V4H14V10H21V14H14V20H10Z" />
+        </svg>
+        Dashboard
+      </a>
+      <!-- Tâches -->
+      <a href="./tasks.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 3H21V5H3V3M3 8H21V10H3V8M3 13H21V15H3V13M3 18H14V20H3V18Z" />
+        </svg>
+        Tâches
+      </a>
+      <!-- Routines -->
+      <a href="./routines.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16H6V18H12A6,6 0 0,0 18,12A6,6 0 0,0 12,6H5V8H12" />
+        </svg>
+        Routines
+      </a>
+      <!-- Flashcards IA -->
+      <a href="./flashcards.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M4,6H20V8H4V6M9,10H20V12H9V10M9,14H20V16H9V14M4,10H7V16H4V10Z" />
+        </svg>
+        Flashcards IA
+      </a>
+      <!-- ProfIA -->
+      <a href="./chat.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M9,22C8.45,22 8,21.55 8,21V20H6A2,2 0 0,1 4,18V6A2,2 0 0,1 6,4H18A2,2 0 0,1 20,6V18A2,2 0 0,1 18,20H12L10,22H9M12,8H7V10H12V8M17,11H7V13H17V11M17,14H7V16H17V14Z" />
+        </svg>
+        ProfIA
+      </a>
+      <!-- Mes cours -->
+      <a href="./cours.html" class="menu-item">
+        <svg viewBox="0 0 24 24">
+          <path d="M20,2H4C2.9,2 2,2.9 2,4V18C2,19.11 2.9,20 4,20H8V22H10V20H14V22H16V20H20C21.11,20 22,19.11 22,18V4C22,2.9 21.11,2 20,2M12,18H4V4H20V18H12Z" />
+        </svg>
+        Mes cours
+      </a>
+      <div class="submenu">
+        <div class="submenu-item">
+          <svg viewBox="0 0 24 24"><path d="M4,6H20V8H4V6Z" /></svg>
+          Physique
+        </div>
+        <div class="submenu-item">
+          <svg viewBox="0 0 24 24"><path d="M4,6H20V8H4V6Z" /></svg>
+          Maths
+        </div>
+        <div class="submenu-item" style="margin-left:1rem;">
+          <svg viewBox="0 0 24 24"><path d="M7 2V13H10V22L17 10H13L17 2H7Z" /></svg>
+          Cours 1
+        </div>
+        <div class="submenu-item" style="margin-left:1rem;">
+          <svg viewBox="0 0 24 24"><path d="M7 2V13H10V22L17 10H13L17 2H7Z" /></svg>
+          Cours 2
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="./plans.html" class="plans">
+        <svg viewBox="0 0 24 24">
+          <path d="M12,4A6,6 0 0,1 18,10C18,13.31 15.31,16 12,16A6,6 0 0,1 6,10A6,6 0 0,1 12,4M2,20V22H22V20A10,10 0 0,0 2,20Z" />
+        </svg>
+        Voir les plans
+      </a>
+      <a href="./login.html" class="logout">
+        <svg viewBox="0 0 24 24">
+          <path d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20,11.5L15.5,16L14.08,15.59M13,3A2,2 0 0,1 15,5V7H13V5H5V19H13V17H15V19A2,2 0 0,1 13,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H13Z" />
+        </svg>
+        Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="searchbar">
+          <input type="text" placeholder="Rechercher...">
+          <svg viewBox="0 0 24 24">
+            <path d="M9.5,3C13.09,3 16,5.91 16,9.5C16,11.04 15.47,12.45 14.58,13.55L14.91,13.88H15C16.1,13.88 17,14.78 17,15.88C17,16.98 16.1,17.88 15,17.88H14.91L14.58,18.21C13.48,19.11 12.07,19.64 10.53,19.64C6.94,19.64 4.03,16.73 4.03,13.14C4.03,9.55 6.94,6.64 10.53,6.64M9.5,5C6.47,5 4,7.47 4,10.5C4,13.53 6.47,16 9.5,16C12.53,16 15,13.53 15,10.5C15,7.47 12.53,5 9.5,5Z" />
+          </svg>
+        </div>
+      </div>
+      <!-- Bouton “+ Créer” en haut à droite -->
+      <div class="topbar-right">
+        <button class="btn-create">
+          <svg viewBox="0 0 24 24">
+            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+          </svg>
+          Créer
+        </button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard-content">
+      <!-- COLONNE GAUCHE -->
+      <div class="left-column">
+        <!-- Tâches à venir -->
+        <div class="card">
+          <h2>
+            <svg viewBox="0 0 24 24"><path d="M3 3H21V5H3V3M3 8H21V10H3V8M3 13H21V15H3V13M3 18H14V20H3V18Z" /></svg>
+            Tâches à venir
+          </h2>
+          <!-- Exemple de tâches (badges matière + type) -->
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-maths">Maths</span>
+              DM 1 
+              <span class="task-type task-type-dm">DM</span>
+            </div>
+            <div class="subcard-meta">Chapitre 2, exercices 1 à 5</div>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-physique">Physique</span>
+              TP Optique 
+              <span class="task-type task-type-partiel">Partiel</span>
+            </div>
+            <div class="subcard-meta">Répondre au QCM et faire le rapport</div>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-anglais">Anglais</span>
+              Examen Oral 
+              <span class="task-type task-type-exam">Exam</span>
+            </div>
+            <div class="subcard-meta">Préparer la présentation "My Dream Job"</div>
+          </div>
+        </div>
+
+        <!-- Routines journalières -->
+        <div class="card" style="background: var(--color-pastel-green);">
+          <h2>
+            <svg viewBox="0 0 24 24">
+              <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16H6V18H12A6,6 0 0,0 18,12A6,6 0 0,0 12,6H5V8H12" />
+            </svg>
+            Routines du Jour
+          </h2>
+          <div class="subcard">
+            <div class="subcard-title">Faire les pompes du jour</div>
+            <div class="subcard-meta">Status : Validé à 08h30</div>
+            <div class="routine-success">Taux réussite global : 80%</div>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title">Réviser Elec (20 min)</div>
+            <div class="subcard-meta">Status : Non validé</div>
+            <div class="routine-success">Taux réussite global : 50%</div>
+          </div>
+        </div>
+
+        <!-- Cours récents -->
+        <div class="card" style="background: var(--color-pastel-purple);">
+          <h2>
+            <svg viewBox="0 0 24 24">
+              <path d="M20,2H4A2,2 0 0,0 2,4V18H6V20H8V18H16V20H18V18H22V4A2,2 0 0,0 20,2M10,14H4V10H10V14M20,14H12V10H20V14Z" />
+            </svg>
+            Cours récents
+          </h2>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-maths">Maths</span> 
+              Intégrales
+            </div>
+            <div class="subcard-meta">Consulté il y a 2 heures</div>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-philo">Philo</span> 
+              Kant
+            </div>
+            <div class="subcard-meta">Consulté il y a 1 jour</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE -->
+      <div class="right-column">
+        <!-- Mon profil (avec icônes remise devant abonnement, crédits, paramètres) -->
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-pic" 
+                 style="background-image:url('https://via.placeholder.com/48');">
+            </div>
+            <div class="profile-info">
+              <span class="name">Alice Martin</span>
+              <span style="font-size:0.85rem; color:var(--color-dark-gray);">
+                Matières : Maths, Physique, Anglais
+              </span>
+            </div>
+          </div>
+
+          <div class="profile-score">
+            Score de la Semaine : 78/100
+          </div>
+
+          <div class="profile-sub">
+            <!-- Petite icône pour abonnement -->
+            <svg viewBox="0 0 24 24">
+              <path d="M12,2A7,7 0 0,1 19,9C19,14.25 12,22 12,22C12,22 5,14.25 5,9A7,7 0 0,1 12,2Z" />
+            </svg>
+            Abonnement : Premium
+          </div>
+          <div class="profile-credits">
+            <!-- Petite icône pour les crédits -->
+            <svg viewBox="0 0 24 24">
+              <path d="M12,1C17.52,1 22,5.48 22,11C22,16.52 17.52,21 12,21C6.48,21 2,16.52 2,11C2,5.48 6.48,1 12,1M10,17H12V19H14V17H16V15H10C9.45,15 9,14.55 9,14C9,13.45 9.45,13 10,13H14C14.55,13 15,12.55 15,12C15,11.45 14.55,11 14,11H12V9H10V11H8V13H14C14.55,13 15,13.45 15,14C15,14.55 14.55,15 14,15H10C9.45,15 9,15.45 9,16C9,16.55 9.45,17 10,17Z" />
+            </svg>
+            3 crédits restants
+          </div>
+          <div class="profile-params">
+            <!-- Petite icône “roue dentée” -->
+            <svg viewBox="0 0 24 24">
+              <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16C11.05,16 10.12,15.63 9.3,15H7V13H9.3C9.11,12.64 9,12.33 9,12C9,11.67 9.11,11.36 9.3,11H7V9H9.3C10.12,8.37 11.05,8 12,8M12,6C10.55,6 9.22,6.58 8.22,7.53L7.64,8H5A1,1 0 0,0 4,9V11A1,1 0 0,0 5,12H5.17C5.06,12.31 5,12.64 5,13C5,13.36 5.06,13.69 5.17,14H5A1,1 0 0,0 4,15V17A1,1 0 0,0 5,18H7.64L8.22,18.47C9.22,19.42 10.55,20 12,20A6,6 0 0,0 12,8C12,8 12,6 12,6Z" />
+            </svg>
+            Paramètres
+          </div>
+        </div>
+
+        <!-- Classement Global (icône trophée) -->
+        <div class="ranking-card">
+          <h2>
+            <!-- Trophée redimensionné -->
+            <svg viewBox="0 0 24 24">
+              <path d="M19,2H17C17,1.45 16.55,1 16,1H8C7.45,1 7,1.45 7,2H5C3.9,2 3,2.9 3,4V6C3,7.11 3.9,8 5,8H5.08C5.56,10.62 7.96,12.5 11,12.93V15H8C7.45,15 7,15.45 7,16V18H17V16C17,15.45 16.55,15 16,15H13V12.93C16.04,12.5 18.44,10.62 18.92,8H19C20.11,8 21,7.11 21,6V4C21,2.9 20.11,2 19,2Z" />
+            </svg>
+            Classement Global
+          </h2>
+          <div class="ranking-list">
+            <div class="ranking-item">
+              <div class="rank-number">1</div>
+              <div class="ranking-avatar" style="background-image:url('https://via.placeholder.com/24');"></div>
+              <div class="ranking-name">John Doe</div>
+              <div class="ranking-score">92 pts</div>
+            </div>
+            <div class="ranking-item">
+              <div class="rank-number">2</div>
+              <div class="ranking-avatar" style="background-image:url('https://via.placeholder.com/24');"></div>
+              <div class="ranking-name">Jane Smith</div>
+              <div class="ranking-score">86 pts</div>
+            </div>
+            <div class="ranking-item">
+              <div class="rank-number">3</div>
+              <div class="ranking-avatar" style="background-image:url('https://via.placeholder.com/24');"></div>
+              <div class="ranking-name">Alice (Vous)</div>
+              <div class="ranking-score">78 pts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Événements à venir (icône = 18x18) -->
+        <div class="events-card">
+          <h2>
+            <svg style="width:18px;height:18px;" viewBox="0 0 24 24">
+              <path d="M19,3H18V1H16V3H8V1H6V3H5A2,2 0 0,0 3,5V21A2,2 0 0,0 5,23H19A2,2 0 0,0 21,21V5A2,2 0 0,0 19,3M19,21H5V9H19V21M19,7H5V5H19V7Z" />
+            </svg>
+            Événements à venir
+          </h2>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-physique">Physique</span>
+              Examen 
+            </div>
+            <div class="subcard-meta">Lundi 14h</div>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span class="subject-badge subject-philo">Philo</span>
+              Cours
+            </div>
+            <div class="subcard-meta">Mardi 10h-12h (laboratoire)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
