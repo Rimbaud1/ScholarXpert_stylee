@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>ScholarXpert - La révolution de vos études</title>
+
+  <!-- Police via Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      /* Palette pastel & variables globales */
+      --color-bg-main:       #f4f9f7;   /* Fond général doux */
+      --color-text-main:     #111111;
+      --color-gray:          #6b6b6b;
+      --color-dark-gray:     #333333;
+
+      --color-pastel-pink:   #fddce2;
+      --color-pastel-yellow: #fce7c1;
+      --color-pastel-purple: #e9e5ff;
+      --color-pastel-green:  #dff6e7;
+
+      --hero-gradient-start: #fddce2;
+      --hero-gradient-end:   #fce7c1;
+
+      --transition: 0.3s ease;
+      --radius-cards: 12px;
+      --font-main: 'Inter', sans-serif;
+
+      /* Durées / keyframes */
+      --animate-duration: 0.8s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: var(--font-main);
+    }
+
+    body {
+      background: var(--color-bg-main);
+      color: var(--color-text-main);
+      overflow-x: hidden;
+    }
+
+    /* ANIMATIONS KEYFRAMES */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeIn {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    @keyframes swing {
+      0%   { transform: rotate(0deg); }
+      20%  { transform: rotate(15deg); }
+      40%  { transform: rotate(-10deg); }
+      60%  { transform: rotate(5deg); }
+      80%  { transform: rotate(-5deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* HEADER FIXE */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: linear-gradient(
+        170deg,
+        var(--color-pastel-pink) 0%,
+        var(--color-pastel-purple) 100%
+      );
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: fadeIn var(--animate-duration) ease-in-out;
+    }
+    .logo svg {
+      width: 28px; 
+      height: 28px; 
+      transition: transform 0.4s;
+    }
+    .logo:hover svg {
+      animation: swing 0.8s ease-in-out;
+    }
+    nav {
+      display: flex;
+      gap: 1rem;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+    nav a {
+      text-decoration: none;
+      color: var(--color-dark-gray);
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: background var(--transition);
+    }
+    nav a:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* HERO SECTION */
+    .hero-section {
+      position: relative;
+      padding: 4rem 2rem;
+      background: linear-gradient(
+        140deg,
+        var(--hero-gradient-start) 0%,
+        var(--hero-gradient-end) 100%
+      );
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-section::after {
+      /* wave décor en bas */
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 120px;
+      background: url("data:image/svg+xml,%3Csvg width='1440' height='120' viewBox='0 0 1440 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0C240 86 480 130 720 130C960 130 1200 86 1440 0V120H0V0Z' fill='%23f4f9f7'/%3E%3C/svg%3E")
+        no-repeat center/cover;
+    }
+    .hero-content {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+
+    .hero-logo-big {
+      font-size: 3.2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+      /* On crée un effet de texte “dégradé animé” */
+      background: linear-gradient(
+        90deg,
+        var(--color-pastel-pink),
+        var(--color-pastel-purple),
+        var(--color-pastel-green),
+        var(--color-pastel-yellow),
+        var(--color-pastel-pink)
+      );
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 6s infinite alternate;
+    }
+    .hero-text {
+      font-size: 1.1rem;
+      color: var(--color-gray);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      animation-delay: 0.6s;
+      opacity: 0;
+    }
+    .btn-primary, .btn-secondary {
+      font-weight: 600;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.25s, filter 0.25s;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: var(--color-pastel-green);
+      color: var(--color-dark-gray);
+    }
+    .btn-secondary {
+      background: var(--color-pastel-pink);
+      color: var(--color-dark-gray);
+    }
+    .btn-primary:hover, .btn-secondary:hover {
+      transform: translateY(-2px);
+      filter: brightness(0.95);
+    }
+
+    /* PHRASES CHOCS */
+    .shock-section {
+      padding: 3rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .shock-section h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-dark-gray);
+      margin-bottom: 1rem;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+    .shock-section p {
+      color: var(--color-gray);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    .shock-highlight {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      background: var(--color-pastel-yellow);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    /* PROFILES SECTION => 2 colonnes max */
+    .profiles-section {
+      background: var(--color-pastel-green);
+      padding: 3rem 2rem;
+    }
+    .profiles-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .profiles-title {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--color-dark-gray);
+      margin-bottom: 1rem;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .profile-card {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      transition: transform var(--transition);
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      opacity: 0;
+    }
+    .profile-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.3rem;
+    }
+    .profile-text {
+      color: var(--color-gray);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .profile-card:hover {
+      transform: translateY(-3px);
+    }
+
+    /* POURQUOI NOUS (why-section) => 2 colonnes */
+    .why-section {
+      padding: 3rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .why-section h2 {
+      font-size: 2rem;
+      text-align: center;
+      font-weight: 800;
+      color: var(--color-dark-gray);
+      margin-bottom: 1rem;
+      animation: fadeInUp var(--animate-duration);
+    }
+    .why-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .why-card {
+      background: var(--color-pastel-purple);
+      border-radius: var(--radius-cards);
+      padding: 2rem 1rem;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      transition: transform var(--transition);
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      opacity: 0;
+    }
+    .why-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      fill: var(--color-dark-gray);
+      opacity: 0.9;
+    }
+    .why-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--color-dark-gray);
+    }
+    .why-card p {
+      color: var(--color-gray);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+    .why-card:hover {
+      transform: translateY(-3px);
+    }
+
+    /* CTA Intermediaire */
+    .call-action-section {
+      background: var(--color-pastel-pink);
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .call-action-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-dark-gray);
+      margin-bottom: 1rem;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+    .call-action-subtitle {
+      color: var(--color-gray);
+      max-width: 700px;
+      margin: 0.5rem auto 2rem;
+      line-height: 1.5;
+      animation: fadeIn var(--animate-duration) ease forwards;
+      animation-delay: 0.4s;
+      opacity: 0;
+    }
+    .call-action-btn {
+      display: inline-block;
+      background: var(--color-pastel-green);
+      color: var(--color-dark-gray);
+      font-weight: 700;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform var(--transition), filter var(--transition);
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      animation-delay: 0.6s;
+      opacity: 0;
+    }
+    .call-action-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(0.95);
+    }
+
+    /* PLANS => 2 colonnes */
+    .plans-section {
+      padding: 3rem 2rem;
+      background: var(--color-pastel-green);
+    }
+    .plans-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .plans-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-dark-gray);
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+    .plans-subtitle {
+      color: var(--color-gray);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.5;
+      animation: fadeIn var(--animate-duration) ease forwards;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .plan-card {
+      background: var(--color-white);
+      border-radius: var(--radius-cards);
+      padding: 2rem 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: transform var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      opacity: 0;
+    }
+    .plan-card:hover {
+      transform: translateY(-3px);
+    }
+    .plan-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-dark-gray);
+      margin-bottom: 0.5rem;
+    }
+    .plan-price {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--color-dark-gray);
+      margin-bottom: 1rem;
+    }
+    .plan-details {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--color-gray);
+    }
+    .plan-action {
+      margin-top: 1rem;
+    }
+    .plan-button {
+      background: var(--color-pastel-yellow);
+      color: var(--color-dark-gray);
+      font-weight: 700;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform var(--transition), filter var(--transition);
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    .plan-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(0.95);
+    }
+
+    /* CTA Final */
+    .final-cta-section {
+      background: var(--color-pastel-purple);
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .final-cta-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--color-dark-gray);
+      animation: fadeInUp var(--animate-duration) ease forwards;
+    }
+    .final-cta-text {
+      font-size: 1rem;
+      color: var(--color-gray);
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      line-height: 1.5;
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    .final-cta-btn {
+      display: inline-block;
+      background: var(--color-pastel-green);
+      color: var(--color-dark-gray);
+      font-weight: 800;
+      padding: 0.9rem 1.6rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: transform var(--transition), filter var(--transition);
+      animation: fadeInUp var(--animate-duration) ease forwards;
+      animation-delay: 0.6s;
+      opacity: 0;
+    }
+    .final-cta-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(0.95);
+    }
+
+    /* FOOTER */
+    footer {
+      background: #fff;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid rgba(0,0,0,0.05);
+      font-size: 0.85rem;
+      color: var(--color-gray);
+    }
+    footer a {
+      text-decoration: none;
+      color: var(--color-gray);
+      font-weight: 600;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* RESPONSIVE => 1 colonne max sur petits écrans */
+    @media (max-width: 768px) {
+      header {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+      .hero-section {
+        padding: 3rem 1rem;
+      }
+      .hero-logo-big {
+        font-size: 2.4rem;
+      }
+      .hero-text {
+        font-size: 1rem;
+      }
+      .hero-buttons {
+        flex-direction: column;
+      }
+      .profiles-grid, .why-cards, .plans-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <a href="#" class="logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M18,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18C19.11,22 20,21.11 20,20V4A2,2 0 0,0 18,2Z" />
+        </svg>
+        ScholarXpert
+      </a>
+    </div>
+    <nav>
+      <a href="./tasks.html">Tâches</a>
+      <a href="./routines.html">Routines</a>
+      <a href="./flashcards.html">Flashcards</a>
+      <a href="./chat.html">ProfIA</a>
+      <a href="./plans.html">Plans</a>
+      <a href="./login.html">Connexion</a>
+    </nav>
+  </header>
+
+  <!-- HERO avec un gros titre animé "ScholarXpert" -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <!-- Nom du site en gros, avec animation de gradient -->
+      <div class="hero-logo-big">ScholarXpert</div>
+      <p class="hero-text">
+        La plateforme qui va bouleverser votre façon d’étudier.  
+        Tâches, Routines, Flashcards IA et plus encore… 
+        Enfin une solution pour reprendre le contrôle de vos cours et de votre temps !
+      </p>
+      <div class="hero-buttons">
+        <a href="./login.html" class="btn-primary">Créer un compte</a>
+        <a href="./plans.html" class="btn-secondary">Voir nos plans</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHRASES CHOCS -->
+  <section class="shock-section">
+    <h2>Un <span class="shock-highlight">saut quantique</span> pour votre productivité</h2>
+    <p>
+      Imaginez : plus aucune dispersion, plus aucun retard. 
+      Avec <strong>ScholarXpert</strong>, vous libérez de l’espace mental et 
+      accélérez votre progression dans chaque matière. 
+      Préparez-vous, votre routine ne sera plus jamais la même.
+    </p>
+  </section>
+
+  <!-- PROFILES - 2 colonnes -->
+  <section class="profiles-section">
+    <div class="profiles-container">
+      <h2 class="profiles-title">Pensé pour tous les profils</h2>
+      <div class="profiles-grid">
+        <!-- 1 -->
+        <div class="profile-card" style="animation-delay: 0.2s;">
+          <h3 class="profile-title">Lycéens Perfectionnistes</h3>
+          <p class="profile-text">
+            Surmontez la pression du bac en organisant chaque devoir 
+            et chaque révision. Priorisez efficacement et détendez-vous, 
+            l’IA vous accompagne pour clarifier vos cours.
+          </p>
+        </div>
+        <!-- 2 -->
+        <div class="profile-card" style="animation-delay: 0.4s;">
+          <h3 class="profile-title">Étudiants du Sup</h3>
+          <p class="profile-text">
+            Projets, TD, partiels : les semaines filent vite. 
+            Gérez tout au même endroit, en créant des routines “anti-procrastination”. 
+            Concentrez-vous sur l’essentiel.
+          </p>
+        </div>
+        <!-- 3 -->
+        <div class="profile-card" style="animation-delay: 0.6s;">
+          <h3 class="profile-title">Professionnels en Formation</h3>
+          <p class="profile-text">
+            Cours du soir, e-learning : n’abandonnez plus vos objectifs. 
+            Programmez vos sessions de travail, 
+            suivez votre progression et restez motivé malgré un emploi du temps serré.
+          </p>
+        </div>
+        <!-- 4 -->
+        <div class="profile-card" style="animation-delay: 0.8s;">
+          <h3 class="profile-title">Autodidactes Passionnés</h3>
+          <p class="profile-text">
+            Vous adorez apprendre seul ? 
+            L’IA vous structure, vous propose des flashcards sur vos lectures 
+            et s’adapte à votre curiosité sans limites.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POURQUOI NOUS => 2 colonnes -->
+  <section class="why-section">
+    <h2>Pourquoi vous allez adorer ScholarXpert</h2>
+    <div class="why-cards">
+      <div class="why-card" style="animation-delay:0.2s;">
+        <svg class="why-icon" viewBox="0 0 24 24">
+          <path d="M3 3H21V5H3V3M3 8H21V10H3V8M3 13H21V15H3V13M3 18H14V20H3V18Z"/>
+        </svg>
+        <h3>Tableau de bord clair</h3>
+        <p>
+          Plus de stress : visualisez l’ensemble de vos devoirs, 
+          routines et deadlines en un coup d’œil. Contrôlez vos priorités, 
+          gagnez du temps.
+        </p>
+      </div>
+      <div class="why-card" style="animation-delay:0.4s;">
+        <svg class="why-icon" viewBox="0 0 24 24">
+          <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16H6V18H12A6,6 0 0,0 18,12A6,6 0 0,0 12,6H5V8H12"/>
+        </svg>
+        <h3>Routines ultra-personnalisées</h3>
+        <p>
+          Créez des rituels quotidiens : sport, révisions, lecture… 
+          Suivez vos stats et renforcez votre persévérance.
+        </p>
+      </div>
+      <div class="why-card" style="animation-delay:0.6s;">
+        <svg class="why-icon" viewBox="0 0 24 24">
+          <path d="M4,6H20V8H4V6M9,10H20V12H9V10M9,14H20V16H9V14M4,10H7V16H4V10Z" />
+        </svg>
+        <h3>Flashcards IA adaptatives</h3>
+        <p>
+          Téléchargez un chapitre, recevez instantanément un jeu de cartes 
+          sur mesure. Révisez plus efficacement, testez-vous plus souvent.
+        </p>
+      </div>
+      <div class="why-card" style="animation-delay:0.8s;">
+        <svg class="why-icon" viewBox="0 0 24 24">
+          <path d="M9,22C8.45,22 8,21.55 8,21V20H6A2,2 0 0,1 4,18V6A2,2 0 0,1 6,4H18A2,2 0 0,1 20,6V18A2,2 0 0,1 18,20H12L10,22H9"/>
+        </svg>
+        <h3>Chat IA 24/7</h3>
+        <p>
+          Posez vos questions, débloquez un exercice compliqué, 
+          demandez un résumé… Un véritable coach virtuel vous suit partout.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Intermédiaire -->
+  <section class="call-action-section">
+    <h2 class="call-action-title">Passez à la vitesse supérieure</h2>
+    <p class="call-action-subtitle">
+      Essayez ScholarXpert en version gratuite dès maintenant. 
+      Vous n’imaginez pas à quel point vous allez gagner en temps et en efficacité. 
+      Le tout en quelques clics.
+    </p>
+    <a href="./login.html" class="call-action-btn">S’inscrire gratuitement</a>
+  </section>
+
+  <!-- PLANS => 2 colonnes -->
+  <section class="plans-section">
+    <div class="plans-container">
+      <h2 class="plans-title">Des formules pensées pour chaque besoin</h2>
+      <p class="plans-subtitle">
+        Choisissez le plan qui correspond le mieux à votre rythme de travail 
+        et à votre budget, et profitez des avantages de ScholarXpert.
+      </p>
+      <div class="plans-grid">
+        <div class="plan-card" style="animation-delay:0.2s;">
+          <div>
+            <h3 class="plan-name">Gratuit</h3>
+            <p class="plan-price">0€/mois</p>
+            <p class="plan-details">
+              • Tâches illimitées<br/>
+              • Routines basiques<br/>
+              • IA limitée<br/>
+              • Stockage restreint
+            </p>
+          </div>
+          <div class="plan-action">
+            <a href="./login.html" class="plan-button">Commencer</a>
+          </div>
+        </div>
+
+        <div class="plan-card" style="animation-delay:0.4s;">
+          <div>
+            <h3 class="plan-name">Pay-Per-Credit</h3>
+            <p class="plan-price">1€/crédit IA</p>
+            <p class="plan-details">
+              • Usage IA à la demande<br/>
+              • Tâches & Routines illimitées<br/>
+              • Contrôlez vos dépenses<br/>
+              • Idéal si usage ponctuel
+            </p>
+          </div>
+          <div class="plan-action">
+            <a href="./plans.html" class="plan-button">Acheter des crédits</a>
+          </div>
+        </div>
+
+        <div class="plan-card" style="animation-delay:0.6s;">
+          <div>
+            <h3 class="plan-name">Basic</h3>
+            <p class="plan-price">10-15€/mois</p>
+            <p class="plan-details">
+              • Chat IA illimité<br/>
+              • Génération Flashcards IA<br/>
+              • Maths Solver standard<br/>
+              • Assistance prioritaire
+            </p>
+          </div>
+          <div class="plan-action">
+            <a href="./plans.html" class="plan-button">Souscrire</a>
+          </div>
+        </div>
+
+        <div class="plan-card" style="animation-delay:0.8s;">
+          <div>
+            <h3 class="plan-name">Premium</h3>
+            <p class="plan-price">25-30€/mois</p>
+            <p class="plan-details">
+              • Tout illimité<br/>
+              • Lecture & résumé de fichiers<br/>
+              • Maths Solver Pro + IA Expert<br/>
+              • Support VIP
+            </p>
+          </div>
+          <div class="plan-action">
+            <a href="./plans.html" class="plan-button">Devenir Premium</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="final-cta-section">
+    <h2 class="final-cta-title">Et si c’était votre meilleur choix cette année&nbsp;?</h2>
+    <p class="final-cta-text">
+      Reprenez le contrôle de vos études sans effort. 
+      Plongez dans l’univers ScholarXpert et faites décoller vos résultats. 
+      Maintenant, c’est à vous de jouer.
+    </p>
+    <a href="./login.html" class="final-cta-btn">Je m’inscris</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    © 2025 ScholarXpert &nbsp;|&nbsp; 
+    <a href="./plans.html">Plans</a> &nbsp;|&nbsp; 
+    <a href="./login.html">Connexion</a>
+  </footer>
+</body>
+</html>
